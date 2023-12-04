@@ -28,9 +28,9 @@ jobs:
 
      - name: Build solution 
        run: msbuild ScriptsExecutionUtility.sln -t:rebuild -property:Configuration=Release
- 
+       
      - name: Publish Artifact
-       uses: actions/upload-artifact@v1.0.0
+       uses: actions/upload-artifact@v2
        with:
          name: API-Artifacts
-         path: path/to/artifact
+         path: D:/a/script-utility/script-utility/bin/Release
