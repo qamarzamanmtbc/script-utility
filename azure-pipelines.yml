@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
-- main
+- azure-pipelines
 
 pool:
   vmImage: 'windows-latest'
@@ -24,12 +24,23 @@ steps:
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true  /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    msbuildArgs: '/p:DeployOnBuild=true;OutDir="PublishFolder"'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)\PublishFolder'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
 
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+  
+
+
