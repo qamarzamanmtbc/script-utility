@@ -26,5 +26,11 @@ jobs:
      - name: Restore Packages
        run: nuget restore ScriptsExecutionUtility.sln
 
-     - name: Build solution
-       run: msbuild ScriptsExecutionUtility.sln -t:rebuild -property:Configuration=Release
+     - name: Build solution 
+       run: msbuild ScriptsExecutionUtility.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+ 
+     - name: Upload Artifact and Publish Artifacts
+       uses: actions/upload-artifact@v1.0.0
+       with:
+         name: API-Artifacts
+         path: bin\Release\Publish
