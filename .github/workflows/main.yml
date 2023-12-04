@@ -27,7 +27,7 @@ jobs:
        run: nuget restore ScriptsExecutionUtility.sln
 
      - name: Build solution 
-       run: msbuild ScriptsExecutionUtility.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+       run: msbuild ScriptsExecutionUtility.sln -t:rebuild -property:Configuration=Release
  
      - name: Publish Artifact
        uses: actions/upload-artifact@v1.0.0
