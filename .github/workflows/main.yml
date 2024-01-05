@@ -43,18 +43,30 @@ jobs:
      # APP_POOL_NAME: ${{ secrets.APP_POOL_NAME }}
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      DEPLOY_SERVER_IP: ${{ secrets.DEPLOY_SERVER_IP }}  # New secret for server IP
 
     steps:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
         name: API-Artifacts
-        path: D:/a/script-utility/script-utility/bin/Release
+        path: ./deploy
 
+    
     - name: Deploy to Server
       run: |
         # Add your deployment script or commands here for Windows
-        # Example: PowerShell or other deployment steps
-        Write-Host "Deploying to $env:DEPLOY_SERVER_PATH"
+        # Example: PowerShell deployment script with credentials and IP
+        Write-Host "Deploying to $env:DEPLOY_SERVER_IP"
         # Write-Host "Using App Pool: $env:APP_POOL_NAME"
-        # Add your deployment commands using $env:DEPLOY_CREDENTIALS
+
+        # Creating a secure string from the provided password
+        $securePassword = ConvertTo-SecureString $env:DEPLOY_PASS -AsPlainText -Force
+
+        # Creating a PSCredential object
+        $credential = New-Object System.Management.Automation.PSCredential ($env:DEPLOY_USER, $securePassword)
+
+        # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
+        # Example: Copy files, restart services, etc.
+        # Example: 
+        Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
