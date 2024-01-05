@@ -34,3 +34,27 @@ jobs:
        with:
          name: API-Artifacts
          path: D:/a/script-utility/script-utility/bin/Release
+  deploy:
+    needs: build
+    runs-on: windows-latest
+
+    env:
+      DEPLOY_SERVER_PATH: ${{ secrets.DEPLOY_SERVER_PATH }}
+     # APP_POOL_NAME: ${{ secrets.APP_POOL_NAME }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: app-artifact
+        path: ./deploy
+
+    - name: Deploy to Server
+      run: |
+        # Add your deployment script or commands here for Windows
+        # Example: PowerShell or other deployment steps
+        Write-Host "Deploying to $env:DEPLOY_SERVER_PATH"
+        # Write-Host "Using App Pool: $env:APP_POOL_NAME"
+        # Add your deployment commands using $env:DEPLOY_CREDENTIALS
