@@ -59,6 +59,7 @@ jobs:
         # Example: PowerShell deployment script with credentials and IP
         Write-Host "Deploying to $env:DEPLOY_SERVER_IP"
         # Write-Host "Using App Pool: $env:APP_POOL_NAME"
+        Write-Host "Deploy Password: $env:DEPLOY_PASS"
 
         # Creating a secure string from the provided password
         $securePassword = ConvertTo-SecureString $env:DEPLOY_PASS -AsPlainText -Force
