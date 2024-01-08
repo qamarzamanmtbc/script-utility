@@ -50,7 +50,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: API-Artifacts
-        path: ./deploy
+        path: D:/a/script-utility/script-utility/bin/Release
 
     - name: Deploy to Server
       run: |
@@ -64,7 +64,7 @@ jobs:
           
           # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
           # Example: Copy files, restart services, etc.
-          Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
+          Copy-Item -Path D:/a/script-utility/script-utility/bin/Release/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
         } -Name DeploymentJob
 
         # Wait for the job to complete or timeout
