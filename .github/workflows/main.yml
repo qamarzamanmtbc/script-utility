@@ -67,11 +67,21 @@ jobs:
         
         # Manually prompt for the password
         $deployPassword = Read-Host -Prompt "Enter deployment password" -AsSecureString
-        
+
+        # Convert the secure string to plain text for demonstration purposes
+        $deployPasswordPlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($deployPassword))
+
+        # Display the entered password (for demonstration purposes, remove in production)
+        Write-Host "Entered password: $deployPasswordPlainText"
+
         # Creating a PSCredential object
         $credential = New-Object System.Management.Automation.PSCredential ($env:DEPLOY_USER, $deployPassword)
 
+
+        Write-Host "Copying files to server..."
+        Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
+        Write-Host "Files copied successfully."
+
+
         # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
         # Example: Copy files, restart services, etc.
-        # Example: 
-        Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
