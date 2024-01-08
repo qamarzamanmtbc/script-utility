@@ -40,10 +40,10 @@ jobs:
 
     env:
       DEPLOY_SERVER_PATH: ${{ secrets.DEPLOY_SERVER_PATH }}
-     # APP_POOL_NAME: ${{ secrets.APP_POOL_NAME }}
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
       DEPLOY_PASS: ${{ secrets.DEPLOY_PASSWORD }}
-      DEPLOY_SERVER_IP: ${{ secrets.DEPLOY_SERVER_IP }}  # New secret for server IP
+      DEPLOY_SERVER_IP: ${{ secrets.DEPLOY_SERVER_IP }}
+      TIMEOUT: 300  # Set timeout duration in seconds
 
     steps:
     - name: Download Artifact
@@ -52,35 +52,31 @@ jobs:
         name: API-Artifacts
         path: ./deploy
 
-    
     - name: Deploy to Server
       run: |
-         # Set timeout duration in seconds
-         TIMEOUT = 300
+        Write-Host "Deploying to $env:DEPLOY_SERVER_IP"
+        Write-Host "Deploy Password: $env:DEPLOY_PASS"
 
-         Write-Host "Deploying to $env:DEPLOY_SERVER_IP"
-         Write-Host "Deploy Password: $env:DEPLOY_PASS"
-
-         # Start deployment in the background
-         Start-Job -ScriptBlock {
+        # Start deployment in the background
+        Start-Job -ScriptBlock {
           # Creating a PSCredential object
           $credential = New-Object System.Management.Automation.PSCredential ($env:DEPLOY_USER, (ConvertTo-SecureString $env:DEPLOY_PASS -AsPlainText -Force))
           
           # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
           # Example: Copy files, restart services, etc.
           Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
-         } -Name DeploymentJob
+        } -Name DeploymentJob
 
-          # Wait for the job to complete or timeout
-          $result = Wait-Job -Name DeploymentJob -Timeout $env:TIMEOUT
+        # Wait for the job to complete or timeout
+        $result = Wait-Job -Job DeploymentJob -Timeout $env:TIMEOUT
 
-         if ($result.State -eq 'Running') {
+        if ($result -eq $null) {
           Write-Host "Deployment timed out after $($env:TIMEOUT) seconds. Aborting..."
           Stop-Job -Name DeploymentJob
           exit 1
-         } elseif ($result.State -eq 'Completed') {
+        } elseif ($result.State -eq 'Completed') {
           Write-Host "Deployment completed successfully."
-         } else {
+        } else {
           Write-Host "Deployment failed."
           exit 1
-         }
+        }
