@@ -68,7 +68,7 @@ jobs:
         } -Name DeploymentJob
 
         # Wait for the job to complete or timeout
-        $result = Wait-Job -Job DeploymentJob -Timeout $env:TIMEOUT
+        $result = Wait-Job -Job (Get-Job -Name DeploymentJob) -Timeout $env:TIMEOUT
 
         if ($result -eq $null) {
           Write-Host "Deployment timed out after $($env:TIMEOUT) seconds. Aborting..."
