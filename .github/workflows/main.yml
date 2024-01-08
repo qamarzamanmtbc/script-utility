@@ -56,7 +56,7 @@ jobs:
     - name: Deploy to Server
       run: |
          # Set timeout duration in seconds
-         TIMEOUT=300
+         TIMEOUT = 300
 
          Write-Host "Deploying to $env:DEPLOY_SERVER_IP"
          Write-Host "Deploy Password: $env:DEPLOY_PASS"
@@ -69,13 +69,13 @@ jobs:
           # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
           # Example: Copy files, restart services, etc.
           Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
-          } -Name DeploymentJob
+         } -Name DeploymentJob
 
-         # Wait for the job to complete or timeout
-         $result = Wait-Job -Name DeploymentJob -Timeout $TIMEOUT
+          # Wait for the job to complete or timeout
+          $result = Wait-Job -Name DeploymentJob -Timeout $env:TIMEOUT
 
          if ($result.State -eq 'Running') {
-          Write-Host "Deployment timed out after $TIMEOUT seconds. Aborting..."
+          Write-Host "Deployment timed out after $($env:TIMEOUT) seconds. Aborting..."
           Stop-Job -Name DeploymentJob
           exit 1
          } elseif ($result.State -eq 'Completed') {
