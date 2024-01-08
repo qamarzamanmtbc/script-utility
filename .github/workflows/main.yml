@@ -55,33 +55,32 @@ jobs:
     
     - name: Deploy to Server
       run: |
-        # Add your deployment script or commands here for Windows
-        # Example: PowerShell deployment script with credentials and IP
-        Write-Host "Deploying to $env:DEPLOY_SERVER_IP"
-        # Write-Host "Using App Pool: $env:APP_POOL_NAME"
-        Write-Host "Deploy Password: $env:DEPLOY_PASS"
+         # Set timeout duration in seconds
+         TIMEOUT=300
 
-        # Creating a secure string from the provided password
-        #$securePassword = ConvertTo-SecureString $env:DEPLOY_PASS -AsPlainText -Force
+         Write-Host "Deploying to $env:DEPLOY_SERVER_IP"
+         Write-Host "Deploy Password: $env:DEPLOY_PASS"
 
-        
-        # Manually prompt for the password
-        $deployPassword = Read-Host -Prompt "Enter deployment password" -AsSecureString
+         # Start deployment in the background
+         Start-Job -ScriptBlock {
+          # Creating a PSCredential object
+          $credential = New-Object System.Management.Automation.PSCredential ($env:DEPLOY_USER, (ConvertTo-SecureString $env:DEPLOY_PASS -AsPlainText -Force))
+          
+          # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
+          # Example: Copy files, restart services, etc.
+          Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
+          } -Name DeploymentJob
 
-        # Convert the secure string to plain text for demonstration purposes
-        $deployPasswordPlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto([System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($deployPassword))
+         # Wait for the job to complete or timeout
+         $result = Wait-Job -Name DeploymentJob -Timeout $TIMEOUT
 
-        # Display the entered password (for demonstration purposes, remove in production)
-        Write-Host "Entered password: $deployPasswordPlainText"
-
-        # Creating a PSCredential object
-        $credential = New-Object System.Management.Automation.PSCredential ($env:DEPLOY_USER, $deployPassword)
-
-
-        Write-Host "Copying files to server..."
-        Copy-Item -Path ./deploy/* -Destination "\\$($env:DEPLOY_SERVER_IP)\$($env:DEPLOY_SERVER_PATH)" -Credential $credential
-        Write-Host "Files copied successfully."
-
-
-        # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
-        # Example: Copy files, restart services, etc.
+         if ($result.State -eq 'Running') {
+          Write-Host "Deployment timed out after $TIMEOUT seconds. Aborting..."
+          Stop-Job -Name DeploymentJob
+          exit 1
+         } elseif ($result.State -eq 'Completed') {
+          Write-Host "Deployment completed successfully."
+         } else {
+          Write-Host "Deployment failed."
+          exit 1
+         }
