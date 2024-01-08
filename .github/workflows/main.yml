@@ -42,7 +42,7 @@ jobs:
       DEPLOY_SERVER_PATH: ${{ secrets.DEPLOY_SERVER_PATH }}
      # APP_POOL_NAME: ${{ secrets.APP_POOL_NAME }}
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-      DEPLOY_PASS: ${{ secrets.DEPLOY_PASS }}
+      DEPLOY_PASS: ${{ secrets.DEPLOY_PASSWORD }}
       DEPLOY_SERVER_IP: ${{ secrets.DEPLOY_SERVER_IP }}  # New secret for server IP
 
     steps:
