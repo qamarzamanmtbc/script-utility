@@ -62,10 +62,14 @@ jobs:
         Write-Host "Deploy Password: $env:DEPLOY_PASS"
 
         # Creating a secure string from the provided password
-        $securePassword = ConvertTo-SecureString $env:DEPLOY_PASS -AsPlainText -Force
+        #$securePassword = ConvertTo-SecureString $env:DEPLOY_PASS -AsPlainText -Force
 
+        
+        # Manually prompt for the password
+        $deployPassword = Read-Host -Prompt "Enter deployment password" -AsSecureString
+        
         # Creating a PSCredential object
-        $credential = New-Object System.Management.Automation.PSCredential ($env:DEPLOY_USER, $securePassword)
+        $credential = New-Object System.Management.Automation.PSCredential ($env:DEPLOY_USER, $deployPassword)
 
         # Your deployment commands using the $credential and $env:DEPLOY_SERVER_IP variables
         # Example: Copy files, restart services, etc.
